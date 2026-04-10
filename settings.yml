@@ -1,7 +1,7 @@
 custom_profile_link_user_field_ids:
   type: list
-  default: "1|"
-  description: The id(s) of your custom user field(s), e.g. 1, 2, etc.
+  default: ""
+  description: "The name(s) of your custom user field(s), exactly as they appear in /admin/customize/user_fields"
 
 custom_profile_link_csv_1:
   type: string

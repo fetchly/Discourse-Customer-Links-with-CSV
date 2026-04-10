@@ -7,7 +7,7 @@ Instead of defining a label and URL prefix per field, this component uses a CSV 
 ## Settings
 
 **`custom_profile_link_user_field_ids`**
-A pipe-separated list of custom user field IDs to display as links, e.g. `3|7|12`. Supports up to 10 fields.
+A pipe-separated list of custom user field **names**, exactly as they appear in `/admin/customize/user_fields`. Supports up to 10 fields.
 
 **`custom_profile_link_csv_1` through `custom_profile_link_csv_10`**
 One CSV textarea per field slot, in the same order as `custom_profile_link_user_field_ids`. Each textarea accepts one entry per line in `value,https://url` format:
@@ -25,9 +25,8 @@ Enables debug logging in the browser console. Useful for troubleshooting field I
 
 ## Notes
 
-- Field IDs can be found in your Discourse admin panel under Users > Custom Fields.
-- Duplicate field IDs can be entered by adding underscores to the number (e.g. `3|3_`) — each slot maps to its own CSV.
-- Only CSV slots up to the number of IDs configured are used; the rest are ignored.
+- Field names must match exactly (case-sensitive) what is shown in `/admin/customize/user_fields`.
+- Only CSV slots up to the number of fields configured are used; the rest are ignored.
 
 ## Credits
 

@@ -2,9 +2,11 @@ import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
 
 export default class CustomProfileLink extends Component {
+    @service site;
+
     get links() {
         if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Settings dump follows", settings);
-        const ids = settings.custom_profile_link_user_field_ids.replace(/_/g, "").split(/\|/).map(Number);
+        const fieldNames = settings.custom_profile_link_user_field_ids.split(/\|/).map(n => n.trim()).filter(n => n.length > 0);
         const csvMappings = [
             settings.custom_profile_link_csv_1,
             settings.custom_profile_link_csv_2,
@@ -17,18 +19,24 @@ export default class CustomProfileLink extends Component {
             settings.custom_profile_link_csv_9,
             settings.custom_profile_link_csv_10,
         ];
-        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Parsed IDs:", ids);
+        const siteUserFields = this.site.user_fields || [];
+        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Field names:", fieldNames, "Site user fields:", siteUserFields);
         if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] args dump:", this.args.outletArgs);
         const userFields = this.args.outletArgs.model.get('user_fields');
         if (!userFields) {
-            console.warn(`[Custom Profile Link] User Profile () missing "user_fields"! Raw user dump follows.`, this.args.outletArgs.model);
+            console.warn(`[Custom Profile Link] User Profile missing "user_fields"! Raw user dump follows.`, this.args.outletArgs.model);
             return undefined;
         }
         let links = [];
-        for (let i = 0; i < ids.length; i++) {
-            const fieldValue = userFields[ids[i]];
+        for (let i = 0; i < fieldNames.length; i++) {
+            const siteField = siteUserFields.find(f => f.name === fieldNames[i]);
+            if (!siteField) {
+                if (settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] No site field found with name "${fieldNames[i]}"`);
+                continue;
+            }
+            const fieldValue = userFields[siteField.id];
             if (!fieldValue) {
-                if (settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] User field ${ids[i]} missing. user_fields dump follows.`, userFields);
+                if (settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] User field "${fieldNames[i]}" (id: ${siteField.id}) has no value. user_fields dump follows.`, userFields);
                 continue;
             }
             const csv = csvMappings[i] || "";
@@ -44,7 +52,7 @@ export default class CustomProfileLink extends Component {
             if (matched) {
                 links.push(matched);
             } else if (settings.custom_profile_link_debug_mode) {
-                console.debug(`[Custom Profile Link] No CSV match for field ${ids[i]} value "${fieldValue}"`);
+                console.debug(`[Custom Profile Link] No CSV match for field "${fieldNames[i]}" value "${fieldValue}"`);
             }
         }
         if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] links built, dump:", links);
