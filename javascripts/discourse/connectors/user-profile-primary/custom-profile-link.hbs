@@ -3,14 +3,8 @@
     <div class="public-user-field">
         <span class="user-field-value">
             {{#each this.links as |link|}}
-            <a href="{{link.[2]}}{{link.[0]}}" target="_blank">{{link.[1]}}</a>
+            <a href="{{link.[1]}}" target="_blank">{{link.[0]}}</a>
             {{/each}}
-            {{#if this.orgs}}
-                <br/>
-                {{#each this.orgs as |org|}}
-                    {{org.[0]}}: <a href="{{org.[2]}}" target="_blank">{{org.[1]}}</a>
-                {{/each}}
-            {{/if}}
         </span>
     </div>
 </div>

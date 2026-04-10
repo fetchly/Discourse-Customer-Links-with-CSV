@@ -1,7 +1,34 @@
-# Discourse multiple custom profile links
+# Discourse Custom Profile Link (CSV Lookup)
 
-Displays custom "user fields" as links on a user's profile,
-as directed by [this tutorial](https://meta.discourse.org/t/link-custom-user-field-to-external-website/41218).
+Displays custom "user fields" as links on a user's profile and user card, as directed by [this tutorial](https://meta.discourse.org/t/link-custom-user-field-to-external-website/41218).
 
-This plugin lets you fill in the blanks via settings rather than
-writing code.
+Instead of defining a label and URL prefix per field, this component uses a CSV lookup table per field: the user's field value is matched against the `value` column, and the corresponding URL is used as the link. This is designed for dropdown-type user fields where the set of options is predefined.
+
+## Settings
+
+**`custom_profile_link_user_field_ids`**
+A pipe-separated list of custom user field IDs to display as links, e.g. `3|7|12`. Supports up to 10 fields.
+
+**`custom_profile_link_csv_1` through `custom_profile_link_csv_10`**
+One CSV textarea per field slot, in the same order as `custom_profile_link_user_field_ids`. Each textarea accepts one entry per line in `value,https://url` format:
+
+```
+Option A,https://example.com/a
+Option B,https://example.com/b
+Option C,https://example.com/c
+```
+
+The `value` must exactly match the user's field value. If no match is found, the field is silently hidden. Leave unused CSV slots blank.
+
+**`custom_profile_link_debug_mode`**
+Enables debug logging in the browser console. Useful for troubleshooting field IDs and CSV matches.
+
+## Notes
+
+- Field IDs can be found in your Discourse admin panel under Users > Custom Fields.
+- Duplicate field IDs can be entered by adding underscores to the number (e.g. `3|3_`) — each slot maps to its own CSV.
+- Only CSV slots up to the number of IDs configured are used; the rest are ignored.
+
+## Credits
+
+Based on [discourse-custom-profile-link](https://github.com/Firepup6500/discourse-custom-profile-link) by Firepup6500.

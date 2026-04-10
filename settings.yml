@@ -3,20 +3,66 @@ custom_profile_link_user_field_ids:
   default: "1|"
   description: The id(s) of your custom user field(s), e.g. 1, 2, etc.
 
-custom_profile_link_labels:
-  type: list
-  default: "View external profile|"
-  description: The label(s) to add to the user's profile page, e.g. View external profile
+custom_profile_link_csv_1:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 1 (first entry in field IDs list). One entry per line in 'value,https://url' format. The value must exactly match the user's dropdown selection."
 
-custom_profile_link_prefixes:
-  type: list
-  default: "https://yoursite.com/users/|"
-  description: Optional text(s) to prepend before the user field value, e.g. https://yoursite.com/users/
+custom_profile_link_csv_2:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 2 (second entry in field IDs list). One entry per line in 'value,https://url' format."
 
-custom_profile_link_orgs:
-  type: list
-  default: "Organization,1,2|"
-  description: "Organization style links, format of: label,id-of-name,id-of-url"
+custom_profile_link_csv_3:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 3 (third entry in field IDs list). One entry per line in 'value,https://url' format."
+
+custom_profile_link_csv_4:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 4 (fourth entry in field IDs list). One entry per line in 'value,https://url' format."
+
+custom_profile_link_csv_5:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 5 (fifth entry in field IDs list). One entry per line in 'value,https://url' format."
+
+custom_profile_link_csv_6:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 6 (sixth entry in field IDs list). One entry per line in 'value,https://url' format."
+
+custom_profile_link_csv_7:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 7 (seventh entry in field IDs list). One entry per line in 'value,https://url' format."
+
+custom_profile_link_csv_8:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 8 (eighth entry in field IDs list). One entry per line in 'value,https://url' format."
+
+custom_profile_link_csv_9:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 9 (ninth entry in field IDs list). One entry per line in 'value,https://url' format."
+
+custom_profile_link_csv_10:
+  type: string
+  textarea: true
+  default: ""
+  description: "CSV mapping for field ID 10 (tenth entry in field IDs list). One entry per line in 'value,https://url' format."
+
 
 custom_profile_link_debug_mode:
   type: bool

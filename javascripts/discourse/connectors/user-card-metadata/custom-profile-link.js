@@ -5,42 +5,49 @@ export default class CustomProfileLink extends Component {
     get links() {
         if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Settings dump follows", settings);
         const ids = settings.custom_profile_link_user_field_ids.replace(/_/g, "").split(/\|/).map(Number);
-        const labels = settings.custom_profile_link_labels.split(/\|/);
-        const prefixes = settings.custom_profile_link_prefixes.split(/\|/);
-        const parsedSettings = { "ids": ids, "labels": labels, "prefixes": prefixes}
-        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Parsed settings dump follows", parsedSettings);
-        let links = [];
+        const csvMappings = [
+            settings.custom_profile_link_csv_1,
+            settings.custom_profile_link_csv_2,
+            settings.custom_profile_link_csv_3,
+            settings.custom_profile_link_csv_4,
+            settings.custom_profile_link_csv_5,
+            settings.custom_profile_link_csv_6,
+            settings.custom_profile_link_csv_7,
+            settings.custom_profile_link_csv_8,
+            settings.custom_profile_link_csv_9,
+            settings.custom_profile_link_csv_10,
+        ];
+        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Parsed IDs:", ids);
         if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] args dump:", this.args.outletArgs);
-        if (!this.args.outletArgs.user.get('user_fields')) {
+        const userFields = this.args.outletArgs.user.get('user_fields');
+        if (!userFields) {
             console.warn(`[Custom Profile Link] User Card () missing "user_fields"! Raw user dump follows.`, this.args.outletArgs.user);
             return undefined;
-        } else {
-            for (let i = 0; i < ids.length; i++) {
-                if (!this.args.outletArgs.user.get('user_fields')[ids[i]] && settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] User field ${ids[i]} missing. user_fields dump follows.`, this.args.outletArgs.user.get("user_fields"));
-                if (!!this.args.outletArgs.user.get('user_fields')[ids[i]]) links.push([this.args.outletArgs.user.get('user_fields')[ids[i]], labels[i], prefixes[i]]);
-            }
-            if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] links built, dump:", links);
-            return links;
         }
-    }
-    get orgs() {
-        const orgsData = settings.custom_profile_link_orgs.split(/\|/);
-        let orgs = [];
-        if (!this.args.outletArgs.user.get('user_fields')) {
-            return undefined;
-        } else {
-            for (let i = 0; i < orgsData.length; i++) {
-                // fmt: Label,name-id,url-id
-                let data = orgsData[i].split(/,/);
-                data[1] = parseInt(data[1]);
-                data[2] = parseInt(data[2]);
-                if ((!this.args.outletArgs.user.get('user_fields')[data[1]] || !this.args.outletArgs.user.get('user_fields')[data[2]]) && settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] Part of orgs data missing. user_fields dump follows.`, this.args.outletArgs.user.get("user_fields"));
-                // Handle only having a url
-                if (!this.args.outletArgs.user.get('user_fields')[data[1]] && !!this.args.outletArgs.user.get('user_fields')[data[2]]) data[1] = data[2];
-                if ((!!this.args.outletArgs.user.get('user_fields')[data[1]] && !!this.args.outletArgs.user.get('user_fields')[data[2]])) orgs.push([data[0], this.args.outletArgs.user.get('user_fields')[data[1]], this.args.outletArgs.user.get('user_fields')[data[2]]])
+        let links = [];
+        for (let i = 0; i < ids.length; i++) {
+            const fieldValue = userFields[ids[i]];
+            if (!fieldValue) {
+                if (settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] User field ${ids[i]} missing. user_fields dump follows.`, userFields);
+                continue;
+            }
+            const csv = csvMappings[i] || "";
+            const rows = csv.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
+            let matched = null;
+            for (const row of rows) {
+                const commaIdx = row.indexOf(",");
+                if (commaIdx === -1) continue;
+                const text = row.slice(0, commaIdx).trim();
+                const link = row.slice(commaIdx + 1).trim();
+                if (text === fieldValue) { matched = [text, link]; break; }
+            }
+            if (matched) {
+                links.push(matched);
+            } else if (settings.custom_profile_link_debug_mode) {
+                console.debug(`[Custom Profile Link] No CSV match for field ${ids[i]} value "${fieldValue}"`);
             }
         }
-        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] orgs built, dump:", orgs);
-        return orgs;
+        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] links built, dump:", links);
+        return links.length ? links : undefined;
     }
 }
