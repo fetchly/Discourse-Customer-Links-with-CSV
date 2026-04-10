@@ -50,7 +50,7 @@ export default class CustomProfileLink extends Component {
                 if (text === fieldValue) { matched = [text, link]; break; }
             }
             if (matched) {
-                links.push(matched);
+                links.push([fieldNames[i], matched[0], matched[1]]);
             } else if (settings.custom_profile_link_debug_mode) {
                 console.debug(`[Custom Profile Link] No CSV match for field "${fieldNames[i]}" value "${fieldValue}"`);
             }

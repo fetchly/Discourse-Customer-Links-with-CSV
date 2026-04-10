@@ -1,7 +1,10 @@
 {{#if this.links}}
     <div class="user-card-metadata-outlet custom-profile-links-links">
         {{#each this.links as |link|}}
-            <span class="profile-link"><a href="{{link.[1]}}" target="_blank">{{link.[0]}}</a></span>
+            <div class="profile-link">
+                <span class="profile-link-field-value">{{link.[0]}}:</span>
+                <a href="{{link.[2]}}" target="_blank">{{link.[1]}}</a>
+            </div>
         {{/each}}
     </div>
 {{/if}}
