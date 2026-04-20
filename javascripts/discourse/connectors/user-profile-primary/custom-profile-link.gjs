@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 
 export default class CustomProfileLink extends Component {
     @service site;
@@ -20,22 +20,13 @@ export default class CustomProfileLink extends Component {
             settings.custom_profile_link_csv_10,
         ];
         const siteUserFields = this.site.user_fields || [];
-
-        const post = this.args.outletArgs.post;
-        if (!post) {
-            if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] No post found in outlet args", this.args.outletArgs);
+        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Field names:", fieldNames, "Site user fields:", siteUserFields);
+        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] args dump:", this.args.outletArgs);
+        const userFields = this.args.outletArgs.model.get('user_fields');
+        if (!userFields) {
+            console.warn(`[Custom Profile Link] User Profile missing "user_fields"! Raw user dump follows.`, this.args.outletArgs.model);
             return undefined;
         }
-
-        // In post serialization, user custom fields are keyed as "user_field_N" strings
-        const userCustomFields = post.user_custom_fields;
-        if (!userCustomFields) {
-            if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Post missing user_custom_fields", post);
-            return undefined;
-        }
-
-        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Post user_custom_fields:", userCustomFields);
-
         let links = [];
         for (let i = 0; i < fieldNames.length; i++) {
             const siteField = siteUserFields.find(f => f.name === fieldNames[i]);
@@ -43,10 +34,9 @@ export default class CustomProfileLink extends Component {
                 if (settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] No site field found with name "${fieldNames[i]}"`);
                 continue;
             }
-            // Posts use "user_field_N" keys (e.g. "user_field_1"), unlike user model which uses integer keys
-            const fieldValue = userCustomFields[`user_field_${siteField.id}`];
+            const fieldValue = userFields[siteField.id];
             if (!fieldValue) {
-                if (settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] Post missing value for field "${fieldNames[i]}" (key: user_field_${siteField.id})`);
+                if (settings.custom_profile_link_debug_mode) console.debug(`[Custom Profile Link] User field "${fieldNames[i]}" (id: ${siteField.id}) has no value. user_fields dump follows.`, userFields);
                 continue;
             }
             const csv = csvMappings[i] || "";
@@ -65,7 +55,22 @@ export default class CustomProfileLink extends Component {
                 console.debug(`[Custom Profile Link] No CSV match for field "${fieldNames[i]}" value "${fieldValue}"`);
             }
         }
-        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] Post links built:", links);
+        if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] links built, dump:", links);
         return links.length ? links : undefined;
     }
+
+    <template>
+        {{#if this.links}}
+        <div class="public-user-fields">
+            <div class="public-user-field">
+                {{#each this.links as |link|}}
+                <div class="user-field-value">
+                    <span class="profile-link-field-value">{{link.[0]}}:</span>
+                    <a href="{{link.[2]}}" target="_blank">{{link.[1]}}</a>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+    </template>
 }

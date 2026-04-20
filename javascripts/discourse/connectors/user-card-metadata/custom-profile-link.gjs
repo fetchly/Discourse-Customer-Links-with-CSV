@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 
 export default class CustomProfileLink extends Component {
     @service site;
@@ -58,4 +58,17 @@ export default class CustomProfileLink extends Component {
         if (settings.custom_profile_link_debug_mode) console.debug("[Custom Profile Link] links built, dump:", links);
         return links.length ? links : undefined;
     }
+
+    <template>
+        {{#if this.links}}
+            <div class="user-card-metadata-outlet custom-profile-links-links">
+                {{#each this.links as |link|}}
+                    <div class="profile-link">
+                        <span class="profile-link-field-value">{{link.[0]}}:</span>
+                        <a href="{{link.[2]}}" target="_blank">{{link.[1]}}</a>
+                    </div>
+                {{/each}}
+            </div>
+        {{/if}}
+    </template>
 }
