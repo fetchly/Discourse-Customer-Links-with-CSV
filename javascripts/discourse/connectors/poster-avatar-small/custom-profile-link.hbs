@@ -1,0 +1,10 @@
+{{#if this.links}}
+<div class="custom-profile-links-post">
+    {{#each this.links as |link|}}
+    <div class="custom-profile-link-post-item">
+        <span class="profile-link-field-name">{{link.[0]}}:</span>
+        <a href="{{link.[2]}}" target="_blank" rel="noopener noreferrer">{{link.[1]}}</a>
+    </div>
+    {{/each}}
+</div>
+{{/if}}

@@ -8,3 +8,26 @@
   border-radius: var(--d-border-radius);
   align-items: center;
 }
+
+.custom-profile-links-post {
+  margin-top: 4px;
+  font-size: var(--font-down-1);
+  line-height: 1.4;
+
+  .custom-profile-link-post-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: baseline;
+
+    .profile-link-field-name {
+      font-weight: bold;
+      color: var(--primary-medium);
+    }
+
+    a {
+      color: var(--tertiary);
+      word-break: break-all;
+    }
+  }
+}
