@@ -1,18 +1,50 @@
 import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
 import { service } from "@ember/service";
+import { ajax } from "discourse/lib/ajax";
+
+// Module-level cache: username → Promise<user_fields object | null>
+// Avoids duplicate requests across all posts on the page.
+const _userFieldsCache = new Map();
+
+function fetchUserFields(username) {
+  if (!_userFieldsCache.has(username)) {
+    _userFieldsCache.set(
+      username,
+      ajax(`/u/${username}/card.json`)
+        .then((data) => data.user?.user_fields || null)
+        .catch(() => null)
+    );
+  }
+  return _userFieldsCache.get(username);
+}
 
 export default class CustomProfileLinkPost extends Component {
   @service site;
+  // undefined = still loading, null = failed/empty, object = loaded
+  @tracked _userFields = undefined;
 
-  static shouldRender(args) {
-    return !!args.post?.user_custom_fields;
+  constructor(owner, args) {
+    super(owner, args);
+    const username = this.args.post?.username;
+    if (!username) {
+      this._userFields = null;
+      return;
+    }
+    fetchUserFields(username).then((fields) => {
+      if (!this.isDestroying && !this.isDestroyed) {
+        this._userFields = fields;
+        if (settings.custom_profile_link_debug_mode) {
+          console.debug(`[Custom Profile Link] Loaded user_fields for ${username}:`, fields);
+        }
+      }
+    });
   }
 
   get links() {
-    if (settings.custom_profile_link_debug_mode) {
-      console.debug("[Custom Profile Link] post args:", this.args);
-      console.debug("[Custom Profile Link] post.user_custom_fields:", this.args.post?.user_custom_fields);
-    }
+    // Still loading — render nothing yet
+    if (this._userFields === undefined) return undefined;
+    if (!this._userFields) return undefined;
 
     const fieldNames = settings.custom_profile_link_user_field_ids
       .split(/\|/)
@@ -35,8 +67,8 @@ export default class CustomProfileLinkPost extends Component {
     ];
 
     const siteUserFields = this.site.user_fields || [];
-    // Post serializer keys user fields as "user_field_N" strings
-    const userCustomFields = this.args.post.user_custom_fields;
+    // user_fields from /card.json uses integer field IDs as keys (same as user-card connector)
+    const userFields = this._userFields;
 
     let links = [];
     for (let i = 0; i < fieldNames.length; i++) {
@@ -48,10 +80,10 @@ export default class CustomProfileLinkPost extends Component {
         continue;
       }
 
-      const fieldValue = userCustomFields[`user_field_${siteField.id}`];
+      const fieldValue = userFields[siteField.id];
       if (!fieldValue) {
         if (settings.custom_profile_link_debug_mode) {
-          console.debug(`[Custom Profile Link] No value for field "${fieldNames[i]}" (key: user_field_${siteField.id})`);
+          console.debug(`[Custom Profile Link] No value for field "${fieldNames[i]}" (id: ${siteField.id})`);
         }
         continue;
       }
